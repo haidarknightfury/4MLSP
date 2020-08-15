@@ -10,9 +10,9 @@ import numpy as np
 # Load the data set
 df = pd.read_csv("titanic.csv")
 
-print(df.describe())
-print(df.info())
-print(df.head(10))
+#print(df.describe())
+#print(df.info())
+#print(df.head(10))
 
 
 ## Missing data
@@ -27,6 +27,7 @@ print(df.columns.values)
 
 # Removing unnecessary columns
 titanic_df = df.drop(['name'], axis=1) # Name is unnecessary
+#print(titanic_df.head(10))
 
 # Extracting the Deck out of the Cabin
 deck = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6, "G": 7, "U": 8}
@@ -36,7 +37,7 @@ titanic_df['deck'] = titanic_df['deck'].map(deck)
 titanic_df['deck'] = titanic_df['deck'].fillna(0)
 titanic_df['deck'] = titanic_df['deck'].astype(int)
 titanic_df = titanic_df.drop(['cabin'], axis=1)
-print(titanic_df.head(10))
+#print(titanic_df.head(10))
 
 
 # Replacing age with the mean
@@ -44,16 +45,17 @@ meanAge = titanic_df['age'].mean()
 print('the mean age is %d'%meanAge)
 ageCopy = titanic_df['age'].copy().replace(np.nan, meanAge, regex=True).apply(np.ceil).astype(int)
 titanic_df['age'] = ageCopy
-print(titanic_df.head(10))
+
+# Survived
+titanic_df['survived'] = titanic_df['survived'].astype(int)
 
 # Fare
 titanic_df['fare'] = titanic_df['fare'].fillna(0).astype(int)
-print(titanic_df['fare'].head(10))
 
 
 # categorical data
-print(titanic_df.info()) # sex, ticket, cabin, embarked, boat
-print(titanic_df.head(10))
+#print(titanic_df.info()) # sex, ticket, cabin, embarked, boat
+#print(titanic_df.head(10))
 
 #sex
 genders = {'male':'M', 'female':'F'}
@@ -62,7 +64,7 @@ titanic_df['sex'] = titanic_df['sex'].map(genders)
 
 
 # ticket - cannot convert to categories , too many unique tickets
-titanic_df = df.drop(['ticket'], axis=1)
+titanic_df = titanic_df.drop(['ticket'], axis=1)
 
 
 # Embarked
@@ -71,9 +73,14 @@ titanic_df['embarked'] = titanic_df['embarked'].fillna('S') # Must fill dummies
 
 
 #Boat
-print(titanic_df.head(10))
+boat_null = titanic_df[pd.isna(titanic_df['boat'])]
+print(boat_null['survived'].sum()) # Only 23 who did not get on a boat survived
+titanic_df[['boat']] = np.where(titanic_df[['boat']].isnull(), 0, 1)
 
-## Drop unecessary variable such as name
+# Body - Too many missing values for body
+print(titanic_df.head(5))
+
+
 ## Y = survived
 ## x = Features 
 ## No age - replace by average
